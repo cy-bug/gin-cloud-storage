@@ -4,7 +4,6 @@ pipeline {
     DOCKER_COMPOSE_FILE = 'docker-compose.yml'
     REGISTRY_URL = 'http://ops-cy-245:9998/'
     IMAGE_NAME = 'ops-cy-245:9998/library/go-project'
-	IMAGE_PUSH = 'library/go-project'
     CREDENTIALS_ID = 'harbor-account' // Jenkins 中存储的 Harbor 凭证 ID
   }
   stages {
@@ -28,7 +27,7 @@ pipeline {
         script {
           // 登录 Harbor 并推送镜像
           docker.withRegistry(REGISTRY_URL, CREDENTIALS_ID) {
-            sh "docker push ${REGISTRY_URL}${IMAGE_PUSH}:${env.BUILD_ID}"
+            sh "docker push ${IMAGE_NAME}:${env.BUILD_ID}"
           }
         }
       }
