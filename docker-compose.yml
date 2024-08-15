@@ -9,12 +9,13 @@ services:
       - "8070:8080"
     environment:
       - GOPROXY=https://goproxy.cn,direct
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASSWORD=12345
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - DATABASE_TYPE=mysql
+      - DATABASE_USER=cy
+      - DATABASE_PASSWORD=12345
+      - DATABASE_HOST=3306
+      - DATABASE_NAME=cloud
+      - REDIS_HOST=6379
+      - REDIS_INDEX=1
     networks: 
       app_net:  # 调用下面 networks 定义的 app_net 网络
         ipv4_address: 172.16.10.10
