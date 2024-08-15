@@ -1,35 +1,50 @@
 pipeline {
-  agent {label '10-node'}
+  agent { label '10-node' }
+  environment {
+    DOCKER_COMPOSE_FILE = 'docker-compose.yml'
+    REGISTRY_URL = 'http://ops-cy-245:9998/'
+    IMAGE_NAME = 'ops-cy-245:9998/library/go-project'
+    CREDENTIALS_ID = 'harbor-account' // Jenkins 中存储的 Harbor 凭证 ID
+  }
   stages {
     stage('Checkout') { // git拉取代码
-	  steps {
-	    git branch: 'master', url: 'https://gitee.com/dy5/gin-cloud-storage.git'
-	  }
-	}
-	stage('docker build') {   // 根据Dockerfile构建镜像
-	  steps {
-	    script {
-          docker.build("ops-cy-245:9998/library/go-project:${env.BUILD_ID}")
-        }
-	  }
-	}
-	stage('Push to Harbor') {  // 上传镜像至harbor
       steps {
-        script {  // 'harbor-credentials' 是存储在 Jenkins 中的凭证 ID
-          docker.withRegistry('http://ops-cy-245:9998/', 'harbor-account') { // 指定 Docker 仓库的 URL 和认证凭证
-            docker.image("ops-cy-245:9998/library/go-project:${env.BUILD_ID}").push()
-		    // 将构建好的Docker镜像推送到指定的Harbor仓库。docker.image方法返回一个Docker镜像对象，push()方法将其推送到 Docker 仓库。
+        git branch: 'master', url: 'https://gitee.com/dy5/gin-cloud-storage.git'
+      }
+    }
+    stage('Docker Build') { // 根据 Docker Compose 文件构建镜像
+      steps {
+        script {
+          // 使用 Docker Compose 构建镜像
+          sh "docker-compose -f ${DOCKER_COMPOSE_FILE} build"
+        }
+      }
+    }
+    stage('Push to Harbor') { // 上传镜像至 Harbor
+      steps {
+        script {
+          // 登录 Harbor 并推送镜像
+          docker.withRegistry(REGISTRY_URL, CREDENTIALS_ID) {
+            sh "docker push ${REGISTRY_URL}${IMAGE_NAME}:${env.BUILD_ID}"
           }
         }
       }
     }
-	stage('docker run') {
-	  steps {
-	    script {
-          // 使用 Docker 容器运行构建好的镜像
-          sh "docker run -d --name go-project-container -p 8070:8080 ops-cy-245:9998/library/go-project:${env.BUILD_ID}"
+    stage('Docker Compose Up') { // 使用 Docker Compose 启动服务
+      steps {
+        script {
+          // 启动服务
+          sh "docker-compose -f ${DOCKER_COMPOSE_FILE} up -d"
         }
-	  }
-	}
+      }
+    }
   }
+ // post {
+ //   failure {
+      // 清理操作，确保容器被正确停止和删除
+ //     script {
+  //      sh "docker-compose -f ${DOCKER_COMPOSE_FILE} down || true"
+  //    }
+ //  }
+ // }
 }
