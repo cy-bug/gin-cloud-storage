@@ -26,5 +26,7 @@ WORKDIR /root/
 # 从构建阶段中复制编译后的二进制文件
 COPY --from=builder /app/myapp .
 
+COPY --from=builder /app/conf /root/conf
+
 # 设置容器启动时运行的命令
 CMD ["./myapp"]
