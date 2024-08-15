@@ -16,8 +16,9 @@ pipeline {
       steps {
         script {
           // 使用 Docker Compose 构建镜像
-           withEnv(["BUILD_ID=${env.BUILD_ID}"]) {
+          withEnv(["BUILD_ID=${env.BUILD_ID}"]) {
             sh "docker-compose -f docker-compose.yml build"
+		  }
         }
       }
     }
