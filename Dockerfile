@@ -7,6 +7,9 @@ WORKDIR /app
 # 将项目文件复制到工作目录
 COPY . .
 
+# 设置go下载源
+ENV GOPROXY=https://goproxy.cn,direct
+
 # 下载依赖
 RUN go mod download
 
