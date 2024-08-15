@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ops-cy-245:9998/library/go-project:${env.BUILD_ID}
+    image: ops-cy-245:9998/library/go-project:${BUILD_ID}
     ports:
       - "8070:8080"
     environment:
