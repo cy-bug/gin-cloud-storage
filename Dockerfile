@@ -21,12 +21,13 @@ RUN go build -o myapp
 FROM busybox:latest
 
 # 设置工作目录
-WORKDIR /root/
+WORKDIR /app
 
-# 从构建阶段中复制编译后的二进制文件
+# 从构建阶段中复制编译后的二进制文件和配置文件
 COPY --from=builder /app/myapp .
-
-COPY --from=builder /app/conf /root/conf
+COPY --from=builder /app/conf /app/conf
+COPY --from=builder /app/view /app/view
 
 # 设置容器启动时运行的命令
 CMD ["./myapp"]
+
